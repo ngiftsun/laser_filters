@@ -52,6 +52,8 @@ laser_filters::LaserScanBoxFilter::LaserScanBoxFilter(){
 bool laser_filters::LaserScanBoxFilter::configure(){
   up_and_running_ = true;
   double min_x, min_y, min_z, max_x, max_y, max_z;
+  
+
   bool box_frame_set = getParam("box_frame", box_frame_);
   bool x_max_set = getParam("max_x", max_x);
   bool y_max_set = getParam("max_y", max_y);
@@ -59,13 +61,18 @@ bool laser_filters::LaserScanBoxFilter::configure(){
   bool x_min_set = getParam("min_x", min_x);
   bool y_min_set = getParam("min_y", min_y);
   bool z_min_set = getParam("min_z", min_z);
-  
+  bool filter_in_set = getParam("filter_in", filter_in);
+
+
   max_.setX(max_x);
   max_.setY(max_y);
   max_.setZ(max_z);
   min_.setX(min_x);
   min_.setY(min_y);
   min_.setZ(min_z);
+
+
+
   
   if(!box_frame_set){
     ROS_ERROR("box_frame is not set!");
@@ -88,9 +95,11 @@ bool laser_filters::LaserScanBoxFilter::configure(){
   if(!z_min_set){
     ROS_ERROR("min_z is not set!");
   }
-
+  if(!filter_in_set){
+    ROS_ERROR("filter_in is not set!");
+  }
   return box_frame_set && x_max_set && y_max_set && z_max_set &&
-    x_min_set && y_min_set && z_min_set;
+    x_min_set && y_min_set && z_min_set && filter_in_set;
 
 }
 
@@ -175,8 +184,25 @@ bool laser_filters::LaserScanBoxFilter::update(
     tf::Point point(x, y, z);
 
     if(inBox(point)){
-      output_scan.ranges[index] = std::numeric_limits<float>::quiet_NaN();
+
+      if (filter_in)
+      {
+          output_scan.ranges[index] = std::numeric_limits<float>::quiet_NaN();
+      }
+
     }
+    else{
+
+      if (!filter_in)
+      {
+          output_scan.ranges[index] = std::numeric_limits<float>::quiet_NaN();
+      }
+    }
+
+
+    // else if (point.y()<0) {
+    //   std::cout << point.y() << std::endl;
+    // }
   }
   up_and_running_ = true;
   return true;

@@ -60,7 +60,7 @@
 namespace laser_filters
 {
 /**
- * @brief This is a filter that removes points in a laser scan inside of a cartesian box.
+ * @brief This is a filter that removes points in a laser scan inside/outside of a cartesian box.
  */
 class LaserScanBoxFilter : public filters::FilterBase<sensor_msgs::LaserScan>
 {
@@ -82,6 +82,7 @@ class LaserScanBoxFilter : public filters::FilterBase<sensor_msgs::LaserScan>
     
     // defines two opposite corners of the box
     tf::Point min_, max_; 
+    bool filter_in;
     bool up_and_running_;
 };
 
